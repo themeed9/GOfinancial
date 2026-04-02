@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Apple iOS inspired palette */
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Clean White Background */
+  --background: 0 0% 100%;
+  --foreground: 220 10% 10%;
+
+  /* iOS System Blue */
+  --primary: 211 100% 50%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Soft Surfaces */
+  --card: 220 14% 96%; /* #F2F2F7 - System Grey 6 */
+  --card-foreground: 220 10% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 10% 10%;
+
+  /* Accents */
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 10% 55%;
+  --accent: 211 100% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 211 100% 50%;
+
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-[#F2F2F7] text-foreground font-body antialiased;
+    /* Main body background is light grey to make the white app container pop */
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .ios-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  .ios-shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  }
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+}
