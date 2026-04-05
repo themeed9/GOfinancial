@@ -9,10 +9,10 @@ interface LayoutProps {
 
 export function Layout({ children, className = "" }: LayoutProps) {
   return (
-    <div className="min-h-screen w-full flex justify-center bg-[#F2F2F7]">
+    <div className="min-h-screen w-full flex justify-center bg-[#F0F2F5]">
       <div
         className={cn(
-          "w-full max-w-[600px] min-h-screen bg-white sm:shadow-2xl overflow-hidden relative",
+          "w-full max-w-[430px] min-h-screen bg-white sm:shadow-2xl overflow-hidden relative",
           className
         )}
       >

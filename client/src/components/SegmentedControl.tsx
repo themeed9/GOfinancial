@@ -9,7 +9,7 @@ interface SegmentedControlProps {
 
 export function SegmentedControl({ options, selected, onChange }: SegmentedControlProps) {
   return (
-    <div className="bg-secondary p-1 rounded-xl flex relative">
+    <div className="bg-gray-100 p-1 rounded-2xl flex relative">
       {options.map((option) => {
         const isActive = selected === option;
         return (
@@ -17,15 +17,15 @@ export function SegmentedControl({ options, selected, onChange }: SegmentedContr
             key={option}
             onClick={() => onChange(option)}
             className={cn(
-              "relative flex-1 py-1.5 text-sm font-semibold rounded-lg z-10 transition-colors duration-200",
-              isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              "relative flex-1 py-2 text-sm font-semibold rounded-xl z-10 transition-colors duration-200",
+              isActive ? "text-[#1A6BFF]" : "text-gray-400 hover:text-gray-600"
             )}
           >
             {isActive && (
               <motion.div
                 layoutId="segmented-pill"
-                className="absolute inset-0 bg-white rounded-lg shadow-sm z-[-1]"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute inset-0 bg-white rounded-xl shadow-sm z-[-1]"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
               />
             )}
             {option}

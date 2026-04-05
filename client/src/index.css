@@ -2,14 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap');
+
 :root {
   --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
   --background: 0 0% 100%;
-  --foreground: 220 10% 10%;
-  --primary: 211 100% 50%;
+  --foreground: 220 15% 12%;
+  --primary: 214 100% 50%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 14% 96%;
+  --secondary: 220 20% 96%;
   --secondary-foreground: 220 10% 10%;
   --muted: 220 14% 96%;
   --muted-foreground: 220 10% 55%;
@@ -19,12 +21,13 @@
   --destructive-foreground: 0 0% 98%;
   --border: 220 13% 91%;
   --input: 220 13% 91%;
-  --ring: 211 100% 50%;
+  --ring: 214 100% 50%;
   --card: 0 0% 100%;
   --card-foreground: 220 10% 10%;
   --popover: 0 0% 100%;
   --popover-foreground: 220 10% 10%;
   --radius: 1rem;
+  --nav-bg: #0D1B2E;
 }
 
 @layer base {
@@ -32,7 +35,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#F2F2F7] text-foreground font-body antialiased;
+    @apply bg-[#F0F2F5] text-foreground font-body antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
@@ -41,10 +44,13 @@
 
 @layer utilities {
   .ios-shadow {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
   .ios-shadow-lg {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  }
+  .card-shadow {
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
   }
   .glass {
     @apply bg-white/80 backdrop-blur-md border border-white/20;
@@ -52,4 +58,37 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
+  .font-body {
+    font-family: var(--font-body);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
 }
+
+@keyframes slide-in-from-top {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes slide-in-from-bottom {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes dash-draw {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.animate-slide-in-top    { animation: slide-in-from-top    0.28s ease-out; }
+.animate-slide-in-bottom { animation: slide-in-from-bottom 0.28s ease-out; }
+.animate-fade-in         { animation: fade-in              0.25s ease-out; }
+.animate-scale-in        { animation: scale-in             0.2s  ease-out; }
+.animate-dash            { animation: dash-draw            1.2s  ease-out forwards; }

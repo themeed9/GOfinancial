@@ -8,10 +8,10 @@ interface TransactionCardProps {
   onEdit?: (id: string) => void;
 }
 
-const typeConfig: Record<TransactionType, { icon: typeof ArrowDown; bg: string; sign: string }> = {
-  expense: { icon: ArrowDown, bg: "bg-red-100", sign: "-" },
-  revenue: { icon: ArrowUp, bg: "bg-green-100", sign: "+" },
-  savings: { icon: PiggyBank, bg: "bg-blue-100", sign: "" },
+const typeConfig: Record<TransactionType, { icon: typeof ArrowDown; bg: string; iconColor: string; sign: string }> = {
+  expense: { icon: ArrowDown, bg: "bg-red-50",   iconColor: "text-red-500",   sign: ""  },
+  revenue: { icon: ArrowUp,   bg: "bg-green-50", iconColor: "text-green-600", sign: "+" },
+  savings: { icon: PiggyBank, bg: "bg-blue-50",  iconColor: "text-blue-500",  sign: ""  },
 };
 
 export function TransactionCard({ transaction, currency, onEdit }: TransactionCardProps) {
@@ -19,27 +19,29 @@ export function TransactionCard({ transaction, currency, onEdit }: TransactionCa
   const Icon = config.icon;
 
   return (
-    <div className="flex items-center justify-between p-4 bg-secondary rounded-2xl transition-all duration-200 active:scale-[0.98] animate-slide-in-top">
+    <div className="flex items-center justify-between px-4 py-3 bg-white rounded-2xl card-shadow border border-gray-100 transition-all duration-200 active:scale-[0.98] animate-slide-in-top">
+      {/* Left: icon + title */}
       <div className="flex items-center gap-3">
         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.bg)}>
-          <Icon className="w-5 h-5" />
+          <Icon className={cn("w-5 h-5", config.iconColor)} strokeWidth={2} />
         </div>
         <div>
-          <p className="font-medium text-sm">{transaction.title}</p>
-          <p className="text-xs text-muted-foreground">{transaction.category}</p>
+          <p className="font-semibold text-sm text-gray-900 leading-tight">{transaction.title}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{transaction.category}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <span className="font-semibold text-sm">
+      {/* Right: amount + edit */}
+      <div className="flex items-center gap-2.5">
+        <span className="font-bold text-sm text-gray-900">
           {config.sign}{currency}{transaction.amount.toLocaleString()}
         </span>
         {onEdit && (
           <button
             onClick={() => onEdit(transaction.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-blue-500 hover:bg-blue-50 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#1A6BFF] hover:bg-blue-50 transition-colors"
           >
-            <Pencil className="w-4 h-4" />
+            <Pencil className="w-3.5 h-3.5" />
           </button>
         )}
       </div>

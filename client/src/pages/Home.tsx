@@ -11,7 +11,37 @@ import { CalendarSheet } from "@/components/CalendarSheet";
 import { AddExpenseSheet } from "@/components/AddExpenseSheet";
 import { useBudgetStore, type TransactionType } from "@/store/useBudgetStore";
 import { formatDate } from "@/lib/utils";
-import { ChevronDown, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+
+// Diagonal arrows icon (matching reference image top-right)
+function DiagonalArrowsIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M7 17L17 7" />
+      <path d="M7 7h10v10" />
+    </svg>
+  );
+}
+
+// Meed logo text component
+function MeedLogo() {
+  return (
+    <span
+      className="text-[22px] font-black italic tracking-tight text-gray-900"
+      style={{ fontFamily: "var(--font-display)" }}
+    >
+      Meed
+    </span>
+  );
+}
 
 export default function Home() {
   const {
@@ -23,6 +53,8 @@ export default function Home() {
     getCurrencySymbol,
     getSelectedCountry,
     setEditing,
+    profileImage,
+    profileName,
   } = useBudgetStore();
 
   const currency = getCurrencySymbol();
@@ -57,8 +89,7 @@ export default function Home() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        const current = start + (end - start) * eased;
-        setDisplayBalance(Math.round(current));
+        setDisplayBalance(Math.round(start + (end - start) * eased));
         if (progress < 1) requestAnimationFrame(animate);
       };
 
@@ -94,115 +125,175 @@ export default function Home() {
   const getTransactionType = (): TransactionType => {
     switch (activeTab) {
       case "Expenses": return "expense";
-      case "Revenue": return "revenue";
-      case "Savings": return "savings";
-      default: return "expense";
+      case "Revenue":  return "revenue";
+      case "Savings":  return "savings";
+      default:         return "expense";
     }
   };
 
-  const getFilteredTransactions = () => {
-    const type = getTransactionType();
-    return transactions.filter(
-      (t) => t.type === type && t.createdAt.substring(0, 10) === selectedDate.substring(0, 10)
-    );
+  const handleNavTabSelect = (type: TransactionType) => {
+    switch (type) {
+      case "expense": setActiveTab("Expenses"); break;
+      case "savings": setActiveTab("Savings");  break;
+      case "revenue": setActiveTab("Revenue");  break;
+    }
   };
 
-  const getBalanceColor = () => {
-    const pct = (currentBalance / monthlyBudget) * 100;
-    if (pct < 10) return "text-red-500";
-    if (pct < 30) return "text-amber-500";
-    return "text-foreground";
-  };
-
-  const filteredTransactions = getFilteredTransactions();
+  const filteredTransactions = transactions.filter(
+    (t) =>
+      t.type === getTransactionType() &&
+      t.createdAt.substring(0, 10) === selectedDate.substring(0, 10)
+  );
   const dailyTotal = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);
 
+  // Format balance: "NGN 47,500.00" style — whole + decimals split
+  const wholeStr = displayBalance.toLocaleString();
+  const currencyCode = country.code === "NG" ? "NGN"
+    : country.code === "US" ? "USD"
+    : country.code === "GB" ? "GBP"
+    : country.code === "EU" ? "EUR"
+    : currency;
+
   return (
-    <Layout className="pb-24">
-      <div className="px-6 pt-8 pb-6 flex flex-col items-center relative">
+    <Layout className="pb-28">
+      {/* ── Top bar ───────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-5 pt-12 pb-2">
+        {/* Avatar + Meed logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border border-gray-200">
+            {profileImage ? (
+              <img src={profileImage} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-xs font-bold text-gray-500">
+                {profileName?.[0]?.toUpperCase() ?? "M"}
+              </span>
+            )}
+          </div>
+          <MeedLogo />
+        </div>
+
+        {/* Diagonal arrows / notification icon */}
+        <button
+          className="w-9 h-9 rounded-full flex items-center justify-center text-[#1A6BFF] hover:bg-blue-50 transition-colors"
+          aria-label="Settings"
+        >
+          <DiagonalArrowsIcon className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* ── Balance section ───────────────────────────────── */}
+      <div className="flex flex-col items-center px-6 pt-5 pb-5">
+        {/* Country flag + chevron */}
         <button
           onClick={() => setShowCountrySelector(true)}
-          className="flex items-center gap-1.5 mb-6"
+          className="flex items-center gap-1.5 mb-3"
         >
-          <CountryFlag code={country.code} size={20} />
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          <CountryFlag code={country.code} size={22} />
+          <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
         </button>
 
-        <span className="text-muted-foreground font-medium text-sm mb-1">Budget Balance</span>
+        {/* Label */}
+        <p className="text-gray-500 text-sm font-medium mb-1">Total Balance</p>
 
-        <div className="flex items-center gap-2 mb-2">
-          <h1 className={`text-4xl font-extrabold tracking-tight font-display transition-colors ${getBalanceColor()}`}>
-            <span className="text-3xl text-muted-foreground">{currency}</span>
-            {displayBalance.toLocaleString()}
-          </h1>
-          <button
-            onClick={handleQuickAdd}
-            disabled={isFutureDate}
-            className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors ${
-              isFutureDate ? "border-secondary text-muted-foreground cursor-not-allowed" : "border-secondary text-muted-foreground hover:text-blue-500 hover:border-blue-500"
-            }`}
-          >
-            <Plus className="w-4 h-4" strokeWidth={2.5} />
-          </button>
+        {/* Big balance display */}
+        <div className="flex items-baseline gap-0.5">
+          <span className="text-[#1A6BFF] font-black text-4xl tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+            {currencyCode}&nbsp;{wholeStr}
+          </span>
+          <span className="text-[#1A6BFF] text-xl font-bold opacity-60">.00</span>
         </div>
+      </div>
 
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigateDate("prev")} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-            <ChevronLeft className="w-4 h-4" />
+      {/* ── Segmented tab ─────────────────────────────────── */}
+      <div className="px-5 mb-3">
+        <SegmentedControl
+          options={["Expenses", "Revenue", "Savings"]}
+          selected={activeTab}
+          onChange={setActiveTab}
+        />
+      </div>
+
+      {/* ── Date navigation row ───────────────────────────── */}
+      <div className="flex items-center justify-between px-5 mb-3">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => navigateDate("prev")}
+            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-500" />
           </button>
-          <button onClick={() => setShowCalendar(true)} className="text-muted-foreground text-sm font-medium hover:text-foreground transition-colors">
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="text-gray-600 text-xs font-semibold hover:text-gray-900 transition-colors"
+          >
             {formatDate(selectedDate)}
           </button>
-          <button onClick={() => navigateDate("next")} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-            <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => navigateDate("next")}
+            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+          >
+            <ChevronRight className="w-4 h-4 text-gray-500" />
           </button>
         </div>
-      </div>
 
-      <div className="px-6 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold">Balance Overview</h2>
-          <span className="text-sm font-medium text-muted-foreground">
-            Today: <span className="text-foreground">{currency}{dailyTotal.toLocaleString()}</span>
+        <span className="text-xs text-gray-400 font-medium">
+          Today's total:&nbsp;
+          <span className="text-gray-600 font-semibold">
+            {currency}{dailyTotal.toLocaleString()}
           </span>
-        </div>
-        <SegmentedControl options={["Expenses", "Revenue", "Savings"]} selected={activeTab} onChange={setActiveTab} />
+        </span>
       </div>
 
-      <div className="px-6 space-y-6">
-        <div className="space-y-3">
-          {isFutureDate ? (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground text-lg">No entry yet</p>
-              <p className="text-muted-foreground/60 text-sm mt-1">Future dates cannot have entries</p>
-            </div>
-          ) : filteredTransactions.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">
-              No {activeTab.toLowerCase()} for this date
-            </div>
-          ) : (
-            filteredTransactions.map((t) => (
-              <TransactionCard
-                key={t.id}
-                transaction={t}
-                currency={currency}
-                onEdit={handleEditTransaction}
-              />
-            ))
-          )}
-        </div>
-
-        {!isFutureDate && <WeeklyChart />}
-
-        <div className="h-10" />
+      {/* ── Transaction list ──────────────────────────────── */}
+      <div className="px-5 space-y-2.5 mb-5">
+        {isFutureDate ? (
+          <div className="py-10 text-center">
+            <p className="text-gray-400 text-base">No entries yet</p>
+            <p className="text-gray-300 text-xs mt-1">Future dates cannot have entries</p>
+          </div>
+        ) : filteredTransactions.length === 0 ? (
+          <div className="py-8 text-center text-gray-400 text-sm">
+            No {activeTab.toLowerCase()} for this date
+          </div>
+        ) : (
+          filteredTransactions.map((t) => (
+            <TransactionCard
+              key={t.id}
+              transaction={t}
+              currency={currency}
+              onEdit={handleEditTransaction}
+            />
+          ))
+        )}
       </div>
 
-      <BottomNav onAddClick={handleAddClick} disabled={isFutureDate} />
+      {/* ── Weekly chart ──────────────────────────────────── */}
+      {!isFutureDate && (
+        <div className="px-5 mb-6">
+          <WeeklyChart />
+        </div>
+      )}
 
+      {/* Bottom spacer */}
+      <div className="h-8" />
+
+      {/* ── Bottom navigation ────────────────────────────── */}
+      <BottomNav
+        onAddClick={handleAddClick}
+        disabled={isFutureDate}
+        onTabSelect={handleNavTabSelect}
+        activeTab={activeTab}
+      />
+
+      {/* Sheets & modals */}
       <CountrySelector open={showCountrySelector} onOpenChange={setShowCountrySelector} />
-      <QuickAddSheet open={showQuickAdd} onOpenChange={setShowQuickAdd} />
-      <CalendarSheet open={showCalendar} onOpenChange={setShowCalendar} />
-      <CategorySelector open={showCategorySelector} onOpenChange={setShowCategorySelector} onSelect={handleCategorySelect} />
+      <QuickAddSheet  open={showQuickAdd}         onOpenChange={setShowQuickAdd}         />
+      <CalendarSheet  open={showCalendar}          onOpenChange={setShowCalendar}          />
+      <CategorySelector
+        open={showCategorySelector}
+        onOpenChange={setShowCategorySelector}
+        onSelect={handleCategorySelect}
+      />
       <AddExpenseSheet open={showAddSheet} onOpenChange={setShowAddSheet} type={addType} />
     </Layout>
   );

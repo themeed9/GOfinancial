@@ -75,6 +75,7 @@ interface BudgetState {
   setBio: (bio: string) => void;
   setMonthlyReminder: (enabled: boolean) => void;
   getCurrencySymbol: () => string;
+  getSelectedCountry: () => Country;
 
   addTransaction: (title: string, amount: number, type: TransactionType, category: Category) => void;
   updateTransaction: (id: string, title: string, amount: number, category: Category) => void;
@@ -159,6 +160,11 @@ export const useBudgetStore = create<BudgetState>()(
       getCurrencySymbol: () => {
         const country = COUNTRIES.find((c) => c.code === get().selectedCountryCode);
         return country?.currencySymbol || "₦";
+      },
+
+      getSelectedCountry: () => {
+        const country = COUNTRIES.find((c) => c.code === get().selectedCountryCode);
+        return country || COUNTRIES[0];
       },
 
       addTransaction: (title, amount, type, category) => {
